@@ -1,9 +1,9 @@
-build/main: main.cpp
+build/bf: main.cpp
 	mkdir -p build
-	clang++ -o build/main -O2 -flto main.cpp
+	clang++ -o build/bf -O2 -flto main.cpp
 
-run: build/main
-	./build/main
+run: build/bf
+	./build/bf
 
 clean:
 	rm -rf build
