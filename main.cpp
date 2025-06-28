@@ -125,8 +125,7 @@ bool interpret(const std::string& source) {
 #endif
 
   std::vector<uint8_t> mem(30000, 0);
-  size_t dp = 0;
-  size_t ip = 0;
+  size_t dp = 0, ip = 0;
 
   while (ip < code.size()) {
     const Op op = code[ip];
@@ -152,6 +151,10 @@ bool interpret(const std::string& source) {
       }
       case Right: {
         dp += op.operand;
+        if (dp >= mem.size()) {
+          std::cerr << "Runtime Error: Memory overflow\n";
+          return false;
+        }
         ip++;
         break;
       }

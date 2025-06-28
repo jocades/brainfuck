@@ -116,10 +116,15 @@ fn main() -> Result<()> {
     let args = std::env::args().collect::<Vec<String>>();
     if args.len() != 2 {
         eprintln!("Usage: bf [path]");
+        std::process::exit(64);
     }
 
     let source = std::fs::read_to_string(&args[1])?;
-    interpret(&source)?;
+
+    if let Err(e) = interpret(&source) {
+        eprintln!("Error: {e}");
+        std::process::exit(70);
+    }
 
     Ok(())
 }
