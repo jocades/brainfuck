@@ -7,6 +7,8 @@
 #include <string_view>
 #include <vector>
 
+#define DEBUG_PRINT_CODE
+
 enum Kind {
   Inc = '+',
   Dec = '-',
@@ -103,8 +105,8 @@ std::vector<Op> compile(const std::string& source) {
         size_t index = stack.top();
         stack.pop();
         code.emplace_back((Kind)c, index + 1);
-        c = lexer.next();
         code[index].operand = code.size();
+        c = lexer.next();
         break;
       }
       default: break;
@@ -113,21 +115,21 @@ std::vector<Op> compile(const std::string& source) {
   return code;
 }
 
-void debug(const std::vector<Op>& code) {
+bool interpret(const std::string& source) {
+  std::vector<Op> code = compile(source);
+
+#ifdef DEBUG_PRINT_CODE
   for (size_t i = 0; i < code.size(); i++) {
     printf("%zu: %c (%zu)\n", i, code[i].kind, code[i].operand);
   }
-}
+#endif
 
-bool interpret(const std::vector<Op>& code) {
-  // debug(code);
-
-  std::vector<int> mem(30000, 0);
+  std::vector<uint8_t> mem(30000, 0);
   size_t dp = 0;
   size_t ip = 0;
 
   while (ip < code.size()) {
-    const Op& op = code[ip];
+    const Op op = code[ip];
     switch (op.kind) {
       case Inc: {
         mem[dp] += op.operand;
@@ -155,7 +157,7 @@ bool interpret(const std::vector<Op>& code) {
       }
       case Input: assert(0 && "Input is not yet implemented"); break;
       case Output: {
-        for (size_t i = 0; i < op.operand; i++) std::cout << (char)mem[dp];
+        for (size_t i = 0; i < op.operand; i++) std::cout << mem[dp];
         ip++;
         break;
       }
@@ -190,8 +192,7 @@ int main(int argc, const char* argv[]) {
   }
 
   std::string source = read_to_string(argv[1]);
-  std::vector<Op> code = compile(source);
 
-  if (!interpret(code)) return 70;
+  if (!interpret(source)) return 70;
   return 0;
 }
